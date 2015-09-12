@@ -27,14 +27,14 @@ gulp.task('zip', function() {
 
 gulp.task('examples', function() {
   return gulp.src([
+      './examples/build/js/benching-help.js',
       './examples/build/js/example.js',
       './examples/build/js/basic-example.js',
       './examples/build/js/repeat-example.js',
-      './examples/build/js/benching-help.js'
     ])
     .on('error', gutil.log)
     .pipe(gconcat('examples.min.js'))
-    .pipe(guglify())
+    // .pipe(guglify())
     .pipe(gulp.dest('./examples/js'));
 });
 

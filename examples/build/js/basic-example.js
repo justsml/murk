@@ -1,6 +1,5 @@
 
 var basicExample = (function(w,d) {
-  var suite = new Benchmark.Suite('basic-example');
 
   var modelOutput, m;
 
@@ -13,19 +12,22 @@ var basicExample = (function(w,d) {
     this.style.color = 'red';
   });
 
-// benchmark tracking code, tightened up a bit //
-  m.benchSuite = suite;
-  m.benchResults = [];
-  m.benchSummary = {};
-// add tests
-  suite
-  .add('init: test main function', init)
-  //.add('step2: test another function', step2)
-  .on('error',    console.error.bind(console, 'YO bench hit error'))
-  .on('cycle',    benchingHelp.onResult.bind(m))  // optional fn i think
-  .on('complete', benchingHelp.onComplete.bind(suite))
-  .run({'maxTime': 50, 'minSamples': 100, 'async': true });
-// Bam, big pimpin!
+  function runBench() {
+    var suite = new Benchmark.Suite('basic-example');
+    // benchmark tracking code, tightened up a bit //
+    m.benchSuite = suite;
+    m.benchResults = [];
+    m.benchSummary = {};
+    // add tests
+    return suite
+      .add('init: test main function', init)
+      //.add('step2: test another function', step2)
+      .on('error',    console.error.bind(console, 'YO bench hit error'))
+      .on('cycle',    benchingHelp.onResult.bind(m))  // optional fn i think
+      .on('complete', benchingHelp.onComplete.bind(suite))
+      .run({'maxTime': 50, 'minSamples': 100, 'async': true });
+    // Bam, big pimpin!
+  }
 
   function init() {
 
@@ -58,6 +60,9 @@ var basicExample = (function(w,d) {
 
   $(d).ready(init);
 
+
+  // only exposed benchmark method `runBench` is runBench - other shit is wired up when it's ready (probaly soon via promises)
+  m.runBench = runBench;
   return m;
 
 })(window,document);

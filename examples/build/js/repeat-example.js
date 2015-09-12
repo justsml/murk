@@ -1,6 +1,6 @@
 var suite = new Benchmark.Suite('repeat-example', {
   'maxTime': 50,
-  'minSamples': 200,
+  'minSamples': 20,
   'async': true
 });
 

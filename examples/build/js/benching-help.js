@@ -1,4 +1,5 @@
-(function(w, d) {
+
+var benchingHelp = (function(w, d) {
   /**
    * Gets the frequency aka Hz, aka operations per second
    *
@@ -23,8 +24,7 @@
         errors = [],
         fastestHz = fastest && getHz(fastest[0]);
 
-    summary = _.map(benches, function(b, index) {
-
+    summary = benches.map(function(b, index) {
       var err = b.error || (b.target && b.target.error || null),
           hz = getHz(b),
           percent = (1 - (hz / fastestHz)) * 100;
@@ -37,21 +37,21 @@
         running: b.running,
         cycles: b.cycles
       };
-      var obj = { running: b.running };
-      _.extend(obj, active, {
-        name: b.name || b.id || b.options.id,
-        index: index || -1,
-        stats: b.stats || {},
-        times: b.times || {},
-        hz: hz,
-        error: err,
-        percent: percent,
-        isFastest: _.indexOf(fastest, b) > -1,
+
+      var obj = extend(active, {
+        name:         b.name || b.id || b.options.id,
+        index:        index || -1,
+        stats:        b.stats || {},
+        times:        b.times || {},
+        hz:           hz,
+        error:        err,
+        percent:      percent,
+        isFastest:    Array.isArray(fastest) ? fastest.indexO(b) > -1 : false,
         // slowerPercent: isFinite(hz) ? formatNumber(percent < 1 ? percent.toFixed(2) : Math.round(percent)) : 0,
-        slowerPercent: isFinite(hz) ? (percent < 1 ? percent.toFixed(2) : Math.round(percent)) : 0,
-        isSlowest: _.indexOf(slowest, b) > -1,
-        seconds: b.times.cycle.toFixed(3),
-        remainder: b.stats.rme.toFixed(2)
+        slowerPercent: isFinite(hz) ? (percent < 1 ? percent.toFixed(2) : Math.floor(percent)) : 0,
+        isSlowest:    Array.isArray(slowest) ? slowest.indexO(b) > -1 : false,
+        seconds:      b.times.cycle.toFixed(3),
+        remainder:    b.stats.rme.toFixed(2)
       });
       delete obj.stats.sample;
       return obj;
@@ -59,16 +59,18 @@
     if ( callback ) {
       errors = errors.length >= 1 ? errors : false;
       callback(errors, summary);
+    } else {
+      return summary;
     }
   }
 
   function onComplete() {
     console.log('BENCH.COMPLETE', arguments, '\nSELF:', this);
     // this must be bound to the current `suite` reference
-    benchingHelp.summary(this, function _saveData(err, summary) {
+    getSummary(this, function _saveData(err, summary) {
       if ( err ) {  console.error('BENCH.ERROR', err); }
       console.log('BENCH.RESULTS', summary, '\nSuite:', this);
-      m.benchSummary = summary;
+      this.summary = summary;
     }.bind(this));
   }
 // Globalize benchmark helpers
@@ -78,6 +80,20 @@
     'onResult':   onResult,
     'onComplete': onComplete
   };
+
+  return w.benchingHelp;
+
+  // simple extend fn
+  function extend(parent, child) {
+    if (typeof parent == 'object') {
+      for (var key in child) {
+        if (child.hasOwnProperty(key)) {
+          parent[key] = child[key];
+        }
+      }
+    }
+    return parent;
+  }
 
 
 })(window, document);

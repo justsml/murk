@@ -10,7 +10,7 @@
   <h1>
     MURK
     <a href="https://github.com/dhigginbotham/murk" class="small pr">View on Github!</a>
-  </h1>  
+  </h1>
 
   <hr>
 
@@ -66,7 +66,9 @@
   <pre id="basicModel"></pre>
 
   <h3>Example usage: </h3>
-  <pre id="basicJs">var basicExample = (function(w,d) {
+  <pre id="basicJs">
+var basicExample = (function(w,d) {
+
   var modelOutput, m;
 
   m = murk({
@@ -77,6 +79,23 @@
   }).registerFilter('highlightText', function() {
     this.style.color = 'red';
   });
+
+  function runBench() {
+    var suite = new Benchmark.Suite('basic-example');
+    // benchmark tracking code, tightened up a bit //
+    m.benchSuite = suite;
+    m.benchResults = [];
+    m.benchSummary = {};
+    // add tests
+    return suite
+      .add('init: test main function', init)
+      //.add('step2: test another function', step2)
+      .on('error',    console.error.bind(console, 'YO bench hit error'))
+      .on('cycle',    benchingHelp.onResult.bind(m))  // optional fn i think
+      .on('complete', benchingHelp.onComplete.bind(suite))
+      .run({'maxTime': 50, 'minSamples': 100, 'async': true });
+    // Bam, big pimpin!
+  }
 
   function init() {
 
@@ -100,7 +119,7 @@
     example.updateModel(modelOutput,m.state.model,m.state.keys,m.state.totalCount);
 
     $('[data-murk-example="basic"]').on('keyup blur', function() {
-      m.set(this.id, this.value); 
+      m.set(this.id, this.value);
       example.updateModel(modelOutput,m.state.model,m.state.keys,m.state.totalCount);
     });
 
@@ -109,6 +128,9 @@
 
   $(d).ready(init);
 
+
+  // only exposed benchmark method `runBench` is runBench - other shit is wired up when it's ready (probaly soon via promises)
+  m.runBench = runBench;
   return m;
 
 })(window,document);</pre>
@@ -162,7 +184,13 @@
   <pre id="repeatModel"></pre>
 
   <h3>Example usage: </h3>
-  <pre id="repeatJs">var repeatExample = (function(w,d) {
+  <pre id="repeatJs">var suite = new Benchmark.Suite('repeat-example', {
+  'maxTime': 50,
+  'minSamples': 20,
+  'async': true
+});
+
+var repeatExample = (function(w,d) {
   var modelOutput, m;
 
   m = murk({
@@ -259,6 +287,7 @@
 
   <hr>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/benchmark/1.0.0/benchmark.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
   <script src="js/murk.js"></script>
   <script src="js/examples.min.js"></script>

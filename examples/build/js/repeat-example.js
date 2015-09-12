@@ -1,3 +1,9 @@
+var suite = new Benchmark.Suite('repeat-example', {
+  'maxTime': 50,
+  'minSamples': 200,
+  'async': true
+});
+
 var repeatExample = (function(w,d) {
   var modelOutput, m;
 

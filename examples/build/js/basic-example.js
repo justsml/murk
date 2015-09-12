@@ -1,4 +1,7 @@
+
 var basicExample = (function(w,d) {
+  var suite = new Benchmark.Suite('basic-example');
+
   var modelOutput, m;
 
   m = murk({
@@ -9,6 +12,20 @@ var basicExample = (function(w,d) {
   }).registerFilter('highlightText', function() {
     this.style.color = 'red';
   });
+
+// benchmark tracking code, tightened up a bit //
+  m.benchSuite = suite;
+  m.benchResults = [];
+  m.benchSummary = {};
+// add tests
+  suite
+  .add('init: test main function', init)
+  //.add('step2: test another function', step2)
+  .on('error',    console.error.bind(console, 'YO bench hit error'))
+  .on('cycle',    benchingHelp.onResult.bind(m))  // optional fn i think
+  .on('complete', benchingHelp.onComplete.bind(suite))
+  .run({'maxTime': 50, 'minSamples': 100, 'async': true });
+// Bam, big pimpin!
 
   function init() {
 
@@ -32,7 +49,7 @@ var basicExample = (function(w,d) {
     example.updateModel(modelOutput,m.state.model,m.state.keys,m.state.totalCount);
 
     $('[data-murk-example="basic"]').on('keyup blur', function() {
-      m.set(this.id, this.value); 
+      m.set(this.id, this.value);
       example.updateModel(modelOutput,m.state.model,m.state.keys,m.state.totalCount);
     });
 
